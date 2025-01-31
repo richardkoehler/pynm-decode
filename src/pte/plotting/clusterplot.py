@@ -170,6 +170,7 @@ def clusterplot_combined(
     alpha: float = 0.05,
     n_perm: int = 1000,
     correction_method: Literal["cluster_pvals", "cluster"] = "cluster_pvals",
+    min_cluster_size: int = 20,
     fig: matplotlib.figure.Figure | None = None,
     title: str | None = None,
     x_label: str = "Time [s]",
@@ -256,10 +257,10 @@ def clusterplot_combined(
             "Must be one of 'cluster_pvals' or 'cluster'."
         )
 
-    squared = np.zeros(power_av.shape[:], dtype=int)
+    squared = np.zeros(power_av.shape, dtype=int)
     if cluster_arr:
         for cluster in cluster_arr:
-            if cluster[0].size > 20:
+            if cluster[0].size > min_cluster_size:
                 squared[cluster] = 1
         if squared.any():
             axs[0].contour(
@@ -298,9 +299,7 @@ def clusterplot_combined(
             vmin=0,
             vmax=1,
         )
-        cbar = fig.colorbar(
-            pos_2, ax=axs[2], label=f"Signif. Clusters [P≤{alpha}]"
-        )
+        cbar = fig.colorbar(pos_2, ax=axs[2], label=f"Signif. Clusters [P≤{alpha}]")
         cbar.ax.set_yticks([0, 1])
     if title is not None:
         fig.suptitle(title)

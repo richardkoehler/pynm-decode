@@ -134,12 +134,20 @@ def apply_baseline(
 #  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 def apply_baseline_array(
-    power: mne.time_frequency.AverageTFR,
+    power: mne.time_frequency.AverageTFR | np.ndarray,
     baseline: np.ndarray,
     mode: str = "percent",
 ) -> mne.time_frequency.AverageTFR:
     """Apply baseline correction with array of baseline values."""
-    data = power.data.copy()
+    if isinstance(power, np.ndarray):
+        data = power.copy()
+    elif isinstance(power, mne.time_frequency.AverageTFR):
+        data = power.data.copy()
+    else:
+        raise ValueError(
+            "Unknown type for `power`. Must be a numpy array or"
+            f" mne.time_frequency.AverageTFR. Got: {type(power)}."
+        )
     if not baseline.ndim == data.ndim:
         raise ValueError(
             "If `baseline` is an array of values, it must have"
